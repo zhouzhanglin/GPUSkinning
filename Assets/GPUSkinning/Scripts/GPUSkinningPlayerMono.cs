@@ -16,6 +16,7 @@ public class GPUSkinningPlayerMono : MonoBehaviour
     [HideInInspector]
     [SerializeField]
     private Material mtrl = null;
+    public Material Mat{get{return mtrl;}}
 
     [HideInInspector]
     [SerializeField]

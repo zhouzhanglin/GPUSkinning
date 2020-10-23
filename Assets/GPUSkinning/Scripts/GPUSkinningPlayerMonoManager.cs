@@ -18,34 +18,34 @@ public class GPUSkinningPlayerMonoManager
         GPUSkinningPlayerResources item = null;
 
         int numItems = items.Count;
-        for(int i = 0; i < numItems; ++i)
+        for (int i = 0; i < numItems; ++i)
         {
-            if(items[i].anim.guid == anim.guid)
+            if (items[i].anim.guid == anim.guid && player.Mat == items[i].players[0].Mat)
             {
                 item = items[i];
                 break;
             }
         }
 
-        if(item == null)
+        if (item == null)
         {
             item = new GPUSkinningPlayerResources();
             items.Add(item);
         }
 
-        if(item.anim == null)
+        if (item.anim == null)
         {
             item.anim = anim;
         }
 
-        if(item.mesh == null)
+        if (item.mesh == null)
         {
             item.mesh = mesh;
         }
 
         item.InitMaterial(originalMtrl, HideFlags.None);
 
-        if(item.texture == null)
+        if (item.texture == null)
         {
             item.texture = GPUSkinningUtil.CreateTexture2D(textureRawData, anim);
         }
@@ -61,20 +61,20 @@ public class GPUSkinningPlayerMonoManager
 
     public void Unregister(GPUSkinningPlayerMono player)
     {
-        if(player == null)
+        if (player == null)
         {
             return;
         }
 
         int numItems = items.Count;
-        for(int i = 0; i < numItems; ++i)
+        for (int i = 0; i < numItems; ++i)
         {
             int playerIndex = items[i].players.IndexOf(player);
-            if(playerIndex != -1)
+            if (playerIndex != -1)
             {
                 items[i].players.RemoveAt(playerIndex);
                 items[i].RemoveCullingBounds(playerIndex);
-                if(items[i].players.Count == 0)
+                if (items[i].players.Count == 0)
                 {
                     items[i].Destroy();
                     items.RemoveAt(i);

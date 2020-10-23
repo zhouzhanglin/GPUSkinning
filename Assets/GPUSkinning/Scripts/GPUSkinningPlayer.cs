@@ -127,6 +127,10 @@ public class GPUSkinningPlayer
         }
     }
 
+    public float UnlitShadowY{
+        get;set;
+    }
+
     private List<GPUSkinningPlayerJoint> joints = null;
     public List<GPUSkinningPlayerJoint> Joints
     {
@@ -439,6 +443,7 @@ public class GPUSkinningPlayer
                 mpb, playingClip, frameIndex, frame, playingClip.rootMotionEnabled && rootMotionEnabled,
                 lastPlayedClip, GetCrossFadeFrameIndex(), crossFadeTime, crossFadeProgress
             );
+            mpb.SetFloat("_shadowY",UnlitShadowY);
             mr.SetPropertyBlock(mpb);
             UpdateJoints(frame);
         }
