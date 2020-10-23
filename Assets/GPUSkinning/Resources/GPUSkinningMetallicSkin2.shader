@@ -115,9 +115,141 @@ ENDCG
  
         // For some reason SHADOWCASTER works. Not ShadowCaster.
         // UsePass "Standard/ShadowCaster"
-        UsePass "Standard/SHADOWCASTER"
+
+        //=====================
+        //投影的计算Pass，假阴影
+		// Pass
+		// {
+		// 	Name "Shadow"
+
+		// 	Stencil
+		// 	{
+		// 		Ref 0
+		// 		Comp equal
+		// 		Pass incrWrap
+		// 		Fail keep
+		// 		ZFail keep
+		// 	}
+
+		// 	Blend SrcAlpha OneMinusSrcAlpha
+		// 	ZWrite Off
+		// 	Cull back
+		// 	Offset -1, 0
+
+		// 	CGPROGRAM
+		// 	#pragma vertex vert
+		// 	#pragma fragment frag
+		// 	#pragma multi_compile_instancing
+		// 	#pragma multi_compile ROOTON_BLENDOFF ROOTON_BLENDON_CROSSFADEROOTON ROOTON_BLENDON_CROSSFADEROOTOFF ROOTOFF_BLENDOFF ROOTOFF_BLENDON_CROSSFADEROOTON ROOTOFF_BLENDON_CROSSFADEROOTOFF
+
+		// 	#include "Lighting.cginc"
+		//     #include "Assets/GPUSkinning/Resources/GPUSkinningInclude.cginc"
+
+        //     struct appdata
+        //     {
+        //         float4 vertex : POSITION;
+        //         float2 uv : TEXCOORD0;
+        //         float4 uv2 : TEXCOORD1;
+        //         float4 uv3 : TEXCOORD2;
+        //         UNITY_VERTEX_INPUT_INSTANCE_ID
+        //     };
+
+		// 	struct v2f
+		// 	{
+		// 		float4 pos : SV_POSITION;
+		// 	};
+
+		// 	UNITY_INSTANCING_BUFFER_START(Prop)
+		// 	UNITY_DEFINE_INSTANCED_PROP(float, _shadowY)
+		// 	UNITY_INSTANCING_BUFFER_END(Prop)
+
+		// 	inline float3 ShadowProjectPos(float4 vertPos)
+		// 	{
+		// 		float3 shadowPos;
+		// 		float3 worldPos = mul(unity_ObjectToWorld, vertPos).xyz/vertPos.w;
+		// 		float3 lightDir = normalize(_WorldSpaceLightPos0.xyz);
+
+		// 		float y = UNITY_ACCESS_INSTANCED_PROP(Prop,_shadowY);
+		// 		shadowPos.y = min(worldPos.y, y);
+		// 		shadowPos.xz = worldPos.xz - lightDir.xz * max(0, worldPos.y - y) / lightDir.y;
+		// 		return shadowPos;
+		// 	}
+
+		// 	v2f vert(appdata v)
+		// 	{
+		// 		UNITY_SETUP_INSTANCE_ID(v);
+		// 		v2f o;
+		// 		//通过skin2得到顶点在物体自身坐标系的位置信息
+		// 		float4 position = skin2(v.vertex, v.uv2, v.uv3);
+		// 		float3 shadowPos = ShadowProjectPos(position);
+		// 		o.pos = UnityWorldToClipPos(shadowPos);
+		// 		return o;
+		// 	}
+
+		// 	fixed4 frag(v2f i) : SV_Target
+		// 	{
+		// 		return fixed4(0,0,0,(1-_LightShadowData.x)*0.3);
+		// 	}
+		// 	ENDCG
+		// }
+
+        //实时阴影，真阴影
+		pass 
+		{
+			Tags{ "LightMode" = "ShadowCaster" }
+
+			CGPROGRAM
+
+			#pragma vertex vert
+			#pragma fragment frag
+			// #pragma multi_compile_shadowcaster
+
+			#pragma multi_compile_instancing
+			#pragma multi_compile ROOTON_BLENDOFF ROOTON_BLENDON_CROSSFADEROOTON ROOTON_BLENDON_CROSSFADEROOTOFF ROOTOFF_BLENDOFF ROOTOFF_BLENDON_CROSSFADEROOTON ROOTOFF_BLENDON_CROSSFADEROOTOFF
+
+			#include "UnityCG.cginc"
+			#include "Assets/GPUSkinning/Resources/GPUSkinningInclude.cginc"
+
+
+			struct appdata
+			{
+				float4 vertex : POSITION;
+				float4 tangent : TANGENT;
+				float3 normal : NORMAL;
+				float4 texcoord : TEXCOORD0;
+				float4 texcoord1 : TEXCOORD1;
+				float4 texcoord2 : TEXCOORD2;
+	
+				UNITY_VERTEX_INPUT_INSTANCE_ID
+			};
+
+			struct v2f
+			{
+				float4 pos:SV_POSITION;
+			};
+
+			v2f vert(appdata v) 
+			{
+				UNITY_SETUP_INSTANCE_ID(v);
+
+				v2f o;
+				//通过skin2得到顶点在物体自身坐标系的位置信息
+				v.vertex = skin2(v.vertex, v.texcoord1, v.texcoord2);
+				TRANSFER_SHADOW_CASTER_NORMALOFFSET(o)
+				return o;
+			}
+
+			float4 frag(v2f o) :SV_Target
+			{
+				SHADOW_CASTER_FRAGMENT(o)
+			}
+
+			ENDCG
+		}
+
+
+
     }
- 
     FallBack Off
     CustomEditor "GPUSkinningStandardShaderGUI"
 }
