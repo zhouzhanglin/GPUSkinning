@@ -1,8 +1,6 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
-[ExecuteInEditMode]
+// [ExecuteInEditMode]
 public class GPUSkinningPlayerMono : MonoBehaviour
 {
     [HideInInspector]
