@@ -90,7 +90,7 @@ public class GPUSkinningSamplerEditor : Editor
 
     private void OnGUI_Sampler(GPUSkinningSampler sampler)
     {
-        guiEnabled = !Application.isPlaying;
+        guiEnabled = true;//!Application.isPlaying;
 
         BeginBox();
         {
